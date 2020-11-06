@@ -9,17 +9,17 @@
   <script>
     async function loadModel() {
       model = undefined;
-      model = await tf.loadLayersModel("https://raw.githubusercontent.com/bhattbhavesh91/tfjs-model/master/model.json");
+      model = await tf.loadLayersModel("https://github.com/Swayamprakashpatel/DETensorflow/blob/main/model.json");
       console.log("model loaded")
     }
     loadModel();
 
     function make_prediction() {
-      var a, b, output;
-      a = Number(document.getElementById("first").value);
-      b = Number(document.getElementById("second").value);
+      var Input, output;
+      Input = Number(document.getElementById("first").value);
+      
       input_xs = tf.tensor2d([
-        [a, b]
+        [0:1762]
       ]);
       output = model.predict(input_xs);
       const outputData = output.dataSync();
