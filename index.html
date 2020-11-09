@@ -16,14 +16,14 @@
 
     function make_prediction() {
       var Input, output;
-      Input = Number(document.getElementById("first").value);
+      Input = Number(document.getElementById("DrugExcipient").value);
       
       input_xs = tf.tensor2d([
         [0:1762]
       ]);
       output = model.predict(input_xs);
       const outputData = output.dataSync();
-      document.getElementById("answer").value = Number(outputData[0] > 0.5);
+      document.getElementById("answer").value = Text;
     }
   </script>
 </head>
