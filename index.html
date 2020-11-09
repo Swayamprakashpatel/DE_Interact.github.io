@@ -7,7 +7,7 @@
 
 <head>
   <script>
-    await function loadModel() {
+    async function loadModel() {
       model = undefined;
       model = await tf.loadLayersModel("https://github.com/Swayamprakashpatel/DETensorflow/blob/main/model.json");
       console.log("model loaded")
