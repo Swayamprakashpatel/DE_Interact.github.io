@@ -19,11 +19,11 @@
       Input = Number(document.getElementById("DEFP").value);
       
       input_xs = tf.tensor2d([
-        [0:1762]
+        [:Input]
       ]);
-      output = model.predict(input_xs);
+      output = np.round(model.predict(input_xs));
       const outputData = output.dataSync();
-      document.getElementById("answer").value = Text;
+      document.getElementById("answer").value = Number(outputData[]);
     }
   </script>
 </head>
