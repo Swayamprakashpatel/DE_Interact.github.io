@@ -1,0 +1,131 @@
+#@title **INSERT PUBCHEM FINGERPRINT OF DRUG AND EXCIPIENT** *Run Code after fingerprint insertion*
+%%capture
+import tensorflow as tf
+#import tensorflowjs as tfjs
+import pandas as pd 
+import numpy as np 
+import io
+#df = pd.read_csv('/content/drive/My Drive/DE.csv', low_memory=False,)
+url = 'https://github.com/Swayamprakashpatel/DETensorflow/blob/main/DEL.csv?raw=true'
+df = pd.read_csv(url, low_memory=False,) # Run for labeled data
+ 
+#df.fillna('&',inplace=True)
+df.drop('Drugs', axis = 1, inplace = True)
+df.drop('Excipients', axis = 1, inplace = True)
+print(df.shape)
+df.head()
+df.dtypes
+df.columns[df.isna().any()].tolist()
+dataset = df.values
+X = dataset[:,0:1762]
+#Y = dataset[:,1762:1763]
+# Run this for labeled data
+Y1 = dataset[:,1762:1763] 
+#print(X, X.shape,X.dtype)
+#print(Y, Y.shape, Y.dtype)
+ 
+from sklearn.preprocessing import OneHotEncoder
+enc = OneHotEncoder(handle_unknown='ignore')
+enc.fit(Y1)
+OneHotEncoder(handle_unknown='ignore')
+enc.categories_
+Y = enc.transform(Y1).toarray()
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
+X_train, X_val_and_test, Y_train, Y_val_and_test = train_test_split(X, Y, test_size=0.3,random_state = 42 )
+X_val, X_test, Y_val, Y_test = train_test_split(X_val_and_test, Y_val_and_test, test_size=0.5, random_state= 42)
+import numpy as np
+ 
+X_train = np.asarray(X_train).astype(np.int64)
+X_val = np.asarray(X_val).astype(np.int64)
+X_test = np.asarray(X_test).astype(np.int64)
+Y_train = np.asarray(Y_train).astype(np.int64)
+Y_val = np.asarray(Y_val).astype(np.int64)
+Y_test = np.asarray(Y_test).astype(np.int64)
+ 
+filepath = '/content/drive/My Drive/DEModel.hdf5'
+ 
+checkpoint = [tf.keras.callbacks.ModelCheckpoint(filepath, monitor='val_accuracy', mode='max', save_best_only=True, Save_weights_only = False, verbose = 1), 
+              tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=15, verbose =1)]
+output_nodes = Y.shape[1]
+print(output_nodes)
+model = tf.keras.Sequential([
+                             tf.keras.layers.Dense(1024, activation='relu', input_shape=(1762,)),
+                             tf.keras.layers.Dense(1024, activation='relu'),
+                             tf.keras.layers.Dense(1024, activation='relu'),
+                             tf.keras.layers.Dense(output_nodes, activation= 'softmax')])
+model.compile(optimizer=tf.keras.optimizers.RMSprop(), loss=tf.keras.losses.BinaryCrossentropy(from_logits = False), metrics=['accuracy'])
+hist = model.fit(X_train, Y_train, epochs= 200, callbacks=[checkpoint],validation_data=(X_val, Y_val), batch_size= 50)
+model.evaluate(X_test, Y_test)
+ 
+# Error Graph
+import matplotlib.pyplot as plt
+plt.plot(hist.history['loss'])
+plt.plot(hist.history['val_loss'])
+plt.title('Model loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Val'], loc='upper right')
+plt.show()
+ 
+plt.plot(hist.history['accuracy'])
+plt.plot(hist.history['val_accuracy'])
+plt.title('Model accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Val'], loc='lower right')
+plt.show()
+ 
+#@title Insert PubChem Fingerprint of Drug and Excipient
+ 
+ 
+from base64 import b64decode
+ 
+def PCFP_BitString(pcfp_base64) :
+ 
+    pcfp_bitstring = "".join( ["{:08b}".format(x) for x in b64decode( pcfp_base64 )] )[32:913]
+    return pcfp_bitstring
+ 
+# *****copy paste PUBCHEM_CACTVS_SUBSKEYS*********
+# DRUG#
+#Chem1 = 'AAADccBwOAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAABAAAAGgAACAAADASAmAAyDoAABgCIAiDSCAACCAAkIAAIiAEGCMgMJzaENRqCe2Cl4BEIuYeIyCCOAAAAAAAIAAAAAAAAABAAAAAAAAAAAA=='
+ 
+#EXCIPIENT#
+#Chem2 = 'AAADceBwPAAAAAAAAAAAAAAAAAAAAAAAAAAkSAAAAAAAAAAAAAAAGgAACAAACBSwgAMACAAABgAAAAAAAAAAAAAAAAAAAAAAAAAREAIAAAAiQAAFAAAHAAHAYAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='
+ 
+#**************************************************
+ 
+# Do not edit below codes
+Pubchem_Fingerprint_of_Drug = "AAADceBzgAAAAAAAAAAAAAAAAAAAAWLAAAAwAAAAAAAAAFgB/AAAHAAYAAAADAjBHgQ/0PfJkACiAzRnZACSgCsxgqAd2aA4ZJiIKOLAmZGEIAhokALIyAcQgMAOiAACAAACAAAQAAQAAAQAAQAAAAAAAA==" #@param {type:"string"}
+Pubchem_Fingerprint_of_Excipient = "AAADccBwOAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAABAAAAGgAACAAADASAmAAyDoAABgCIAiDSCAACCAAkIAAIiAEGCMgMJzaENRqCe2Cl4BEIuYeIyCCOAAAAAAAIAAAAAAAAABAABBBAAAAAAA==" #@param {type:"string"}
+ 
+print(PCFP_BitString(Pubchem_Fingerprint_of_Drug))
+print(PCFP_BitString(Pubchem_Fingerprint_of_Excipient))
+ 
+dfChem1 = (PCFP_BitString(Pubchem_Fingerprint_of_Drug))
+dfChem2 = (PCFP_BitString(Pubchem_Fingerprint_of_Excipient))
+List1 = list(dfChem1)
+List2 = list(dfChem2)
+List = List1 + List2
+ 
+import pandas as pd
+t = pd.DataFrame(np.array(List).reshape(-1,len(List)))
+ 
+#@title RUN FOR PREDICTION
+ 
+ 
+dataset1 = t.values
+t.dtype = int
+X_Predict = (dataset1[:,0:1762].astype(int))
+print(X_Predict)
+print(X_Predict.shape)
+print(X_Predict.dtype)
+ 
+t1 = model.predict(X_Predict)
+print(t1)
+ 
+t = np.round(model.predict(X_Predict))
+print(t)
+ 
+Y_prediction = enc.inverse_transform(t)
+print(Y_prediction, Y_prediction.shape)
