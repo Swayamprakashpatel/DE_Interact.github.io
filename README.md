@@ -1,4 +1,4 @@
-# DETensorflow
+# DE_Interact
 Drug-Excipient Interaction Prediction
 Determination of compatibility between drug and excipient is crucial step during any pharmaceutical formulation development. Presently only experiment based techniques are available to determine proabable incompatibility.
 
