@@ -18,3 +18,5 @@ CONTACT: swayamprakash.patel@gmail.com | swayamprakashpatel.ph@Charusat.ac.in
 
 PLEASE SEND YOUR SUGGESTION THROUGH BELOW LINK
 https://forms.gle/9f6s2i4B2iBUYWCE9
+
+[**Access to DE_Interact**](https://colab.research.google.com/github/Swayamprakashpatel/DE_Interact.github.io/blob/main/Predict_Multiple.ipynb)
